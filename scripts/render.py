@@ -5,9 +5,11 @@ Reads the current session's JSONL transcript, computes how full the context
 window is, attributes tokens by source, and prints a single recommendation.
 Stdlib only.
 
-Usage:  render.py <session_id> <cwd> [default|minimal|honest]
+Usage:  render.py <session_id> [default|minimal|honest] [--cwd <path>]
+        cwd defaults to the process's current working directory.
 """
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -228,11 +230,17 @@ def render(events, mode="default"):
 
 
 def main():
-    if len(sys.argv) < 3:
-        print("usage: render.py <session_id> <cwd> [default|minimal|honest]", file=sys.stderr)
+    args = sys.argv[1:]
+    cwd = os.getcwd()
+    if "--cwd" in args:
+        i = args.index("--cwd")
+        cwd = args[i + 1]
+        del args[i:i + 2]
+    if not args:
+        print("usage: render.py <session_id> [default|minimal|honest] [--cwd <path>]", file=sys.stderr)
         sys.exit(2)
-    session_id, cwd = sys.argv[1], sys.argv[2]
-    mode = sys.argv[3] if len(sys.argv) > 3 else "default"
+    session_id = args[0]
+    mode = args[1] if len(args) > 1 else "default"
     jsonl = find_jsonl(session_id, cwd)
     if not jsonl.exists():
         print(f"⚠ /dumb: session JSONL not found at {jsonl}")
