@@ -114,5 +114,48 @@ class TestEdgeCases(unittest.TestCase):
         self.assertIn("empty", out.lower())
 
 
+def _asst_turn(input_t, cache_create, cache_read, model="claude-sonnet-4-6"):
+    return {"type": "assistant", "message": {"role": "assistant", "model": model,
+            "content": [{"type": "text", "text": "ok"}],
+            "usage": {"input_tokens": input_t, "cache_creation_input_tokens": cache_create,
+                      "cache_read_input_tokens": cache_read, "output_tokens": 100}}}
+
+
+class TestMonitor(unittest.TestCase):
+    def test_silent_when_empty(self):
+        self.assertEqual("", render.render([], mode="monitor"))
+
+    def test_silent_when_green(self):
+        # 20k / 200k = 10%, GREEN
+        out = render.render([_asst_turn(1, 12000, 8000)], mode="monitor")
+        self.assertEqual("", out)
+
+    def test_fires_on_first_dumb_turn(self):
+        # 90k / 200k = 45%, DUMB
+        out = render.render([_asst_turn(1, 18000, 72000)], mode="monitor")
+        self.assertIn("past the line", out)
+        self.assertIn("/dumb:", out)
+
+    def test_dedup_when_same_zone_two_turns_in_a_row(self):
+        # both turns DUMB → second should be silent
+        events = [_asst_turn(1, 18000, 72000), _asst_turn(1, 18000, 72000)]
+        self.assertEqual("", render.render(events, mode="monitor"))
+
+    def test_fires_on_escalation_dumb_to_red(self):
+        # turn 1 DUMB (45%), turn 2 RED (78% on opus 1m? no, on standard)
+        events = [_asst_turn(1, 18000, 72000),  # 45% DUMB
+                  _asst_turn(1, 35000, 121000, model="claude-opus-4-7")]  # 78% RED
+        out = render.render(events, mode="monitor")
+        self.assertIn("RED ZONE", out)
+        self.assertIn("/compact now", out)
+
+    def test_silent_when_escalating_to_green(self):
+        # impossible in practice (compact drops context), but check sanity:
+        # turn 1 DUMB, turn 2 GREEN → silent (we don't celebrate)
+        events = [_asst_turn(1, 18000, 72000),  # 45% DUMB
+                  _asst_turn(1, 12000, 8000)]   # 10% GREEN
+        self.assertEqual("", render.render(events, mode="monitor"))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

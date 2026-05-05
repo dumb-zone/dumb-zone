@@ -72,6 +72,16 @@ def latest_assistant(events):
     return last_u, last_m
 
 
+def assistant_turns(events):
+    """All assistant turns with usage data, in order. Used by monitor mode for dedup."""
+    out = []
+    for e in events:
+        m = e.get("message") or {}
+        if m.get("role") == "assistant" and isinstance(m.get("usage"), dict):
+            out.append((m["usage"], m.get("model")))
+    return out
+
+
 def first_cached_prefix(events):
     for e in events:
         m = e.get("message") or {}
@@ -182,7 +192,42 @@ def fmt_tools_summary(tools_used):
 EMPTY_MSG = "🟩 EMPTY — pristine context. /dumb is for mid-session reality checks."
 
 
+def turn_zone(usage, model):
+    """Returns (emoji, label, pct, model_base) for a given assistant turn."""
+    total = usage_total(usage)
+    window, is_1m, model_base = model_window(model or "")
+    pct = total / window if window else 0.0
+    em, label = zone_label(pct, is_1m)
+    return em, label, pct, model_base, total
+
+
+def monitor_message(events):
+    """Stateless dedup: fire only when the latest turn's zone differs from the
+    previous turn's zone. Silent in GREEN. Designed for use as a Stop hook."""
+    turns = assistant_turns(events)
+    if not turns:
+        return None
+    em, label, pct, model_base, total = turn_zone(*turns[-1])
+    if label == "GREEN ZONE":
+        return None
+    if len(turns) >= 2:
+        _, prev_label, _, _, _ = turn_zone(*turns[-2])
+        if prev_label == label:
+            return None  # same zone as last turn, don't re-nudge
+    cost = turn_cost(model_base, total)
+    pct_str = f"{pct*100:.0f}%"
+    if label == "RED ZONE":
+        return f"{em} /dumb: {pct_str} context — RED ZONE. /compact now — each turn costs ~${cost:.2f}."
+    if label == "DUMB ZONE":
+        return f"{em} /dumb: {pct_str} context — past the line. /dumb for breakdown, /compact for a fix."
+    # CONTEXT ROT (1M models past 30%)
+    return f"{em} /dumb: {pct_str} context — context rot territory on a 1M model. /dumb for details."
+
+
 def render(events, mode="default"):
+    if mode == "monitor":
+        return monitor_message(events) or ""
+
     usage, model = latest_assistant(events)
     if not usage or not model:
         return EMPTY_MSG
@@ -240,15 +285,18 @@ def main():
         cwd = args[i + 1]
         del args[i:i + 2]
     if not args:
-        print("usage: render.py <session_id> [default|minimal|honest] [--cwd <path>]", file=sys.stderr)
+        print("usage: render.py <session_id> [default|minimal|honest|monitor] [--cwd <path>]", file=sys.stderr)
         sys.exit(2)
     session_id = args[0]
     mode = args[1] if len(args) > 1 else "default"
     jsonl = find_jsonl(session_id, cwd)
     if not jsonl.exists():
-        print(EMPTY_MSG)
+        if mode != "monitor":  # monitor mode is silent when there's nothing to say
+            print(EMPTY_MSG)
         return
-    print(render(load_events(jsonl), mode))
+    out = render(load_events(jsonl), mode)
+    if out:
+        print(out)
 
 
 if __name__ == "__main__":

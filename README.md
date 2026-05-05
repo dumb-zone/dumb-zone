@@ -103,6 +103,37 @@ It does **not** read file contents, send anything off-machine, or talk to any AP
 - `/dumb` — default, full attribution
 - `/dumb minimal` — gauge bar and recommendation only
 - `/dumb honest` — drop heuristic estimates; show only counts that come straight from the API
+- `monitor` — silent until you cross into DUMB or RED, then nudges you with one line. Designed to be wired up as a `Stop` hook (see below) so you don't have to remember to run `/dumb`.
+
+## Monitor mode (auto-nudge)
+
+If you keep forgetting to run `/dumb`, wire it up as a [Stop hook](https://docs.claude.com/en/docs/claude-code/hooks). The hook fires once per assistant turn, runs the renderer in `monitor` mode, and prints exactly one line — only when you've crossed into a new zone.
+
+Add this to `~/.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "Stop": [{
+      "hooks": [{
+        "type": "command",
+        "command": "python3 ~/.claude/skills/dumb/scripts/render.py \"${CLAUDE_SESSION_ID}\" monitor"
+      }]
+    }]
+  }
+}
+```
+
+What you'll see:
+
+```
+🟧 /dumb: 45% context — past the line. /dumb for breakdown, /compact for a fix.
+🟥 /dumb: 78% context — RED ZONE. /compact now — each turn costs ~$0.15.
+```
+
+**Dedup behavior:** the monitor only fires when the latest turn's zone differs from the previous turn's zone. So you get exactly one nudge when you cross into DUMB, and one more if you escalate into RED. No spam every turn while you're past the line. No celebration when you /compact back to GREEN.
+
+**Silent in GREEN.** Silent at session start. Silent if you stay in the same zone. Loud only when you cross.
 
 ## Customization
 
@@ -110,8 +141,9 @@ v0.1 ships with opinionated thresholds (40% DUMB, 75% RED, 30% CONTEXT ROT on 1M
 
 ## Roadmap
 
-- **v0.2** — `~/.claude/dumb/pricing.json` override for custom enterprise contracts; cost formula derives output-tokens-per-turn from session history instead of a fixed 3000.
-- **v0.3** — optional sparkline showing context growth across the last N turns.
+- **v0.2** — `monitor` mode + `Stop` hook for auto-nudges (see above). Shipped.
+- **v0.3** — `~/.claude/dumb/pricing.json` override for custom enterprise contracts; cost formula derives output-tokens-per-turn from session history instead of a fixed 3000.
+- **v0.4** — optional sparkline showing context growth across the last N turns; `install.sh` flag to wire up the monitor hook automatically.
 - Anything else: open an issue.
 
 ## Credits
