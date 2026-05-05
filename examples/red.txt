@@ -1,0 +1,15 @@
+🟥 RED ZONE — 78% context used (156,003 / 200,000) · claude-opus-4-7
+[███████████████████████████████▏        ]  (as of last turn)
+Quality typically drops past 40% on Sonnet-class models.
+You are 76,003 tokens past the threshold.
+
+Where your context went:
+  System + tools + skills (initial)         35,000 tok    22%
+  Your messages                                 35 tok     0%
+  My text responses                             55 tok     0%
+  Tool I/O (calls + results)               120,913 tok    78%
+
+Tools called (5 total): Read ×2, mcp__sentry__list_issues ×1, mcp__sentry__get_issue ×1, Bash ×1
+⚠ MCP servers actually used: sentry (2 tools)
+
+→ Compact immediately or start a fresh session. Each turn costs ~$0.15 at degraded quality.

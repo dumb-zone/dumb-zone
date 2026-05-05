@@ -1,0 +1,10 @@
+🟩 GREEN ZONE — 10% context used (20,001 / 200,000) · claude-sonnet-4-6
+[████                                    ]  (as of last turn)
+
+Where your context went:
+  System + tools + skills (initial)         12,000 tok    60%
+  Your messages                                 15 tok     0%
+  My text responses                             12 tok     0%
+  Tool I/O (calls + results)                 7,974 tok    40%
+
+→ You're fine. Keep going.

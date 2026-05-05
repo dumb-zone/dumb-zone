@@ -1,0 +1,15 @@
+🟧 DUMB ZONE — 45% context used (90,003 / 200,000) · claude-sonnet-4-6
+[██████████████████                      ]  (as of last turn)
+Quality typically drops past 40% on Sonnet-class models.
+You are 10,003 tokens past the threshold.
+
+Where your context went:
+  System + tools + skills (initial)         18,000 tok    20%
+  Your messages                                 38 tok     0%
+  My text responses                             33 tok     0%
+  Tool I/O (calls + results)                71,932 tok    80%
+
+Tools called (2 total): Read ×1, mcp__github__search_code ×1
+⚠ MCP servers actually used: github (1 tool)
+
+→ Consider /compact at a natural breakpoint. Each turn now costs ~$0.07 at lower-quality output.
