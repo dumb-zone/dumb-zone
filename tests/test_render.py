@@ -107,11 +107,11 @@ class TestEdgeCases(unittest.TestCase):
     def test_no_assistant_turns(self):
         # only user message, no assistant — should warn, not crash
         out = render.render([{"type": "user", "message": {"role": "user", "content": "hi"}}])
-        self.assertIn("no assistant turns yet", out.lower())
+        self.assertIn("no turns yet", out.lower())
 
     def test_empty_events(self):
         out = render.render([])
-        self.assertIn("no assistant turns yet", out.lower())
+        self.assertIn("no turns yet", out.lower())
 
 
 if __name__ == "__main__":

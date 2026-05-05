@@ -179,10 +179,13 @@ def fmt_tools_summary(tools_used):
 
 
 # --- main -------------------------------------------------------------------
+EMPTY_MSG = "🟩 EMPTY — no turns yet in this session. Ask me something, then run /dumb."
+
+
 def render(events, mode="default"):
     usage, model = latest_assistant(events)
     if not usage or not model:
-        return "⚠ /dumb: no assistant turns yet — nothing to measure."
+        return EMPTY_MSG
 
     total = usage_total(usage)
     window, is_1m, model_base = model_window(model)
@@ -243,7 +246,7 @@ def main():
     mode = args[1] if len(args) > 1 else "default"
     jsonl = find_jsonl(session_id, cwd)
     if not jsonl.exists():
-        print(f"⚠ /dumb: session JSONL not found at {jsonl}")
+        print(EMPTY_MSG)
         return
     print(render(load_events(jsonl), mode))
 
