@@ -9,7 +9,7 @@ tools: Bash
 Run the bundled renderer and emit its output verbatim. Do not summarize, paraphrase, comment on, or add anything before or after.
 
 ```bash
-!`python3 "${CLAUDE_SKILL_DIR}/scripts/render.py" "${CLAUDE_SESSION_ID}" ${1:-default}`
+!`python3 "${CLAUDE_SKILL_DIR}/scripts/render.py" "${CLAUDE_SESSION_ID}" $1`
 ```
 
 ## Argument
