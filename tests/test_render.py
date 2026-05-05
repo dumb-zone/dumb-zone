@@ -32,15 +32,15 @@ class TestZones(unittest.TestCase):
         out = render.render(load("dumb.jsonl"))
         self.assertIn("🟧", out)
         self.assertIn("DUMB ZONE", out)
-        # 90,001 / 200,000 = 45% → in the "consider /compact" band
-        self.assertTrue("Consider /compact" in out or "Run /compact" in out)
-        self.assertIn("past the threshold", out)
+        # 90,001 / 200,000 = 45% → "past the line" copy band
+        self.assertIn("/compact", out)
+        self.assertIn("past the line", out)
 
     def test_red_over_75(self):
         out = render.render(load("red.jsonl"))
         self.assertIn("🟥", out)
         self.assertIn("RED ZONE", out)
-        self.assertIn("Compact immediately", out)
+        self.assertIn("tired Claude", out)
 
 
 class TestModes(unittest.TestCase):
@@ -107,11 +107,11 @@ class TestEdgeCases(unittest.TestCase):
     def test_no_assistant_turns(self):
         # only user message, no assistant — should warn, not crash
         out = render.render([{"type": "user", "message": {"role": "user", "content": "hi"}}])
-        self.assertIn("no turns yet", out.lower())
+        self.assertIn("empty", out.lower())
 
     def test_empty_events(self):
         out = render.render([])
-        self.assertIn("no turns yet", out.lower())
+        self.assertIn("empty", out.lower())
 
 
 if __name__ == "__main__":

@@ -26,7 +26,7 @@ Where your context went:
 🟧 DUMB ZONE — 45% context used (90,003 / 200,000) · claude-sonnet-4-6
 [██████████████████                      ]  (as of last turn)
 Quality typically drops past 40% on Sonnet-class models.
-You are 10,003 tokens past the threshold.
+10,003 tokens past the line. The drift has started.
 
 Where your context went:
   System + tools + skills (initial)         18,000 tok    20%
@@ -35,9 +35,9 @@ Where your context went:
   Tool I/O (calls + results)                71,932 tok    80%
 
 Tools called (2 total): Read ×1, mcp__github__search_code ×1
-⚠ MCP servers actually used: github (1 tool)
+⚠ MCP audit: only github (1 tool) earned its keep. The rest are tax.
 
-→ Consider /compact at a natural breakpoint. Each turn now costs ~$0.07 at lower-quality output.
+→ You're past the line. Quality drift starts here. /compact at a natural pause. Each turn now costs ~$0.07.
 ```
 
 **Red zone — auto-compact is imminent, every turn is expensive and degraded.**
@@ -46,7 +46,7 @@ Tools called (2 total): Read ×1, mcp__github__search_code ×1
 🟥 RED ZONE — 78% context used (156,003 / 200,000) · claude-opus-4-7
 [███████████████████████████████▏        ]  (as of last turn)
 Quality typically drops past 40% on Sonnet-class models.
-You are 76,003 tokens past the threshold.
+76,003 tokens past the line. The drift has started.
 
 Where your context went:
   System + tools + skills (initial)         35,000 tok    22%
@@ -55,9 +55,9 @@ Where your context went:
   Tool I/O (calls + results)               120,913 tok    78%
 
 Tools called (5 total): Read ×2, mcp__sentry__list_issues ×1, mcp__sentry__get_issue ×1, Bash ×1
-⚠ MCP servers actually used: sentry (2 tools)
+⚠ MCP audit: only sentry (2 tools) earned its keep. The rest are tax.
 
-→ Compact immediately or start a fresh session. Each turn costs ~$0.15 at degraded quality.
+→ /compact or /clear. You're paying full price for a tired Claude. Each turn costs ~$0.15.
 ```
 
 ## Install

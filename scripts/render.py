@@ -162,10 +162,10 @@ def recommendation(pct, model_base, total):
         return "You're fine. Keep going."
     cost = turn_cost(model_base, total)
     if pct < 0.60:
-        return f"Consider /compact at a natural breakpoint. Each turn now costs ~${cost:.2f} at lower-quality output."
+        return f"You're past the line. Quality drift starts here. /compact at a natural pause. Each turn now costs ~${cost:.2f}."
     if pct < RED:
-        return f"Run /compact now or in the next 1-2 turns. Each turn costs ~${cost:.2f} at degraded quality."
-    return f"Compact immediately or start a fresh session. Each turn costs ~${cost:.2f} at degraded quality."
+        return f"Getting expensive AND dumb. /compact in 1–2 turns. Each turn costs ~${cost:.2f}."
+    return f"/compact or /clear. You're paying full price for a tired Claude. Each turn costs ~${cost:.2f}."
 
 
 def fmt_tools_summary(tools_used):
@@ -179,7 +179,7 @@ def fmt_tools_summary(tools_used):
 
 
 # --- main -------------------------------------------------------------------
-EMPTY_MSG = "🟩 EMPTY — no turns yet in this session. Ask me something, then run /dumb."
+EMPTY_MSG = "🟩 EMPTY — pristine context. /dumb is for mid-session reality checks."
 
 
 def render(events, mode="default"):
@@ -202,7 +202,7 @@ def render(events, mode="default"):
         out.append(f"Quality typically drops past {int(DUMB*100)}% on Sonnet-class models.")
         delta = total - int(DUMB * window)
         if delta > 0:
-            out.append(f"You are {delta:,} tokens past the threshold.")
+            out.append(f"{delta:,} tokens past the line. The drift has started.")
 
     if mode == "honest":
         cached = first_cached_prefix(events)
@@ -225,7 +225,7 @@ def render(events, mode="default"):
             out.append(f"Tools called ({tool_calls} total): {fmt_tools_summary(tools_used)}")
         if mcp_servers:
             srv_summary = ", ".join(f"{s} ({len(t)} tool{'s' if len(t)>1 else ''})" for s, t in sorted(mcp_servers.items()))
-            out.append(f"⚠ MCP servers actually used: {srv_summary}")
+            out.append(f"⚠ MCP audit: only {srv_summary} earned its keep. The rest are tax.")
 
     out.append("")
     out.append(f"→ {recommendation(pct, model_base, total)}")
